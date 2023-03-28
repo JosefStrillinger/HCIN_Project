@@ -1,4 +1,5 @@
 import random
+from recognizer import recognize, tts_speak
 from ships import small_ship, medium_ship, big_ship, huge_ship, Positions
 import pygame
 
@@ -58,10 +59,9 @@ def checkCollision(field, ship):
                     return True
     return False
 
-def addToField(screen, field, list, ship, botOn=False, cnt=None):
+def addToField(screen, field, list, ship, botOn=False, cnt=None, auto=False):
     if checkCollision(field, ship):
-        print("Cant place ship like that!")
-        setShips(screen, field, list, botOn, cnt+1)
+        setShips(screen, field, list, botOn, cnt+1, auto)
         return
     positions = []
     for i in range(ship.length):
@@ -69,73 +69,101 @@ def addToField(screen, field, list, ship, botOn=False, cnt=None):
             case Positions.vertical:
                 field[ship.pos[1]+i][ship.pos[0]] = "x"
                 positions.append((ship.pos[1]+i, ship.pos[0]))
-                if not botOn: pygame.draw.rect(screen, (200,100,150), pygame.Rect(ship.pos[0]*50+50, (ship.pos[1]+i)*50+50, 50, 50))
+                if not botOn or auto: pygame.draw.rect(screen, (200,100,150), pygame.Rect(ship.pos[0]*50+50, (ship.pos[1]+i)*50+50, 50, 50))
             case Positions.horizontal:
                 field[ship.pos[1]][ship.pos[0]+i] = "x"
                 positions.append((ship.pos[1], ship.pos[0]+i))
-                if not botOn: pygame.draw.rect(screen, (200,100,150), pygame.Rect((ship.pos[0]+i)*50+50, ship.pos[1]*50+50, 50, 50))
+                if not botOn or auto: pygame.draw.rect(screen, (200,100,150), pygame.Rect((ship.pos[0]+i)*50+50, ship.pos[1]*50+50, 50, 50))
         drawGrid(screen)
         if botOn == False:
             pygame.display.update()
     ship.pos = positions
     list.append(ship)        
-    setShips(screen, field, list, botOn, cnt)
+    setShips(screen, field, list, botOn, cnt, auto)
 
-def setShips(screen, playingField, list, botOn, cnt=6):
+def setShips(screen, playingField, list, botOn, cnt=6, auto=False):
     if botOn:
         if cnt > 4:
             pos = random.randint(0,9), random.randint(0,9)
             direction = Positions.vertical if random.randint(0,1) == 0 else Positions.horizontal
             s = small_ship(pos, direction)
-            addToField(screen, playingField, list, s, True, cnt=cnt-1)
+            addToField(screen, playingField, list, s, True, cnt=cnt-1, auto=auto)
         elif cnt > 3:
             pos = random.randint(0,9), random.randint(0,9)
             direction = Positions.vertical if random.randint(0,1) == 0 else Positions.horizontal
             s = medium_ship(pos, direction)
-            addToField(screen, playingField, list, s, True, cnt=cnt-1)
+            addToField(screen, playingField, list, s, True, cnt=cnt-1, auto=auto)
         elif cnt > 1:    
             pos = random.randint(0,9), random.randint(0,9)
             direction = Positions.vertical if random.randint(0,1) == 0 else Positions.horizontal
             s = big_ship(pos, direction)
-            addToField(screen, playingField, list, s, True, cnt=cnt-1)
+            addToField(screen, playingField, list, s, True, cnt=cnt-1, auto=auto)
         elif cnt > 0:
             pos = random.randint(0,9), random.randint(0,9)
             direction = Positions.vertical if random.randint(0,1) == 0 else Positions.horizontal
             s = huge_ship(pos, direction)
-            addToField(screen, playingField, list, s, True, cnt=cnt-1)
+            addToField(screen, playingField, list, s, True, cnt=cnt-1, auto=auto)
         return
-    
-    if cnt > 4:
-        pygame.event.get()
-        p = input("Position (x-y): ").split("-")
-        pos = ord(p[0])-65, int(p[1])
-        direction = Positions.vertical if int(input("Direction (vert. = 0; hor. = 1): ")) == 0 else Positions.horizontal
-        s = small_ship(pos, direction)
-        addToField(screen, playingField, list, s, False, cnt-1)
-    elif cnt > 3:
-        pygame.event.get()
-        p = input("Position (x-y): ").split("-")
-        pos = ord(p[0])-65, int(p[1])
-        direction = Positions.vertical if int(input("Direction (vert. = 0; hor. = 1): "))  == 0 else Positions.horizontal
-        s = medium_ship(pos, direction)
-        addToField(screen, playingField, list, s, False, cnt-1)
-    elif cnt > 1:
-        pygame.event.get()
-        p = input("Position (x-y): ").split("-")
-        pos = ord(p[0])-65, int(p[1])
-        direction = Positions.vertical if int(input("Direction (vert. = 0; hor. = 1): "))  == 0 else Positions.horizontal
-        s = big_ship(pos, direction)
-        addToField(screen, playingField, list, s, False, cnt-1)
-    elif cnt > 0:
-        pygame.event.get()
-        p = input("Position (x-y): ").split("-")
-        pos = ord(p[0])-65, int(p[1])
-        direction = Positions.vertical if int(input("Direction (vert. = 0; hor. = 1): "))  == 0 else Positions.horizontal
-        s = huge_ship(pos, direction)
-        addToField(screen, playingField, list, s, False, cnt-1)
-    return
+    else:
+        if cnt > 4:
+            pygame.event.get()
+            tts_speak("Press space to start")
+            temp = True
+            while temp:
+                for event in pygame.event.get():
+                    if event.type == pygame.KEYDOWN:
+                            if event.key == pygame.K_SPACE:
+                                temp=False
+            p = recognize("Position of ship", "pos")
+            pos = ord(p[0])-65, int(p[1])
+            direction = Positions.vertical if recognize("Orientation of ship", "orient") == 0 else Positions.horizontal
+            s = small_ship(pos, direction)
+            addToField(screen, playingField, list, s, False, cnt-1)
+        elif cnt > 3:
+            pygame.event.get()
+            tts_speak("Press space to start")
+            temp = True
+            while temp:
+                for event in pygame.event.get():
+                    if event.type == pygame.KEYDOWN:
+                            if event.key == pygame.K_SPACE:
+                                temp=False
+            p = recognize("Position of ship", "pos")
+            pos = ord(p[0])-65, int(p[1])
+            direction = Positions.vertical if recognize("Orientation of ship", "orient")  == 0 else Positions.horizontal
+            s = medium_ship(pos, direction)
+            addToField(screen, playingField, list, s, False, cnt-1)
+        elif cnt > 1:
+            pygame.event.get()
+            tts_speak("Press space to start")
+            temp = True
+            while temp:
+                for event in pygame.event.get():
+                    if event.type == pygame.KEYDOWN:
+                            if event.key == pygame.K_SPACE:
+                                temp=False
+            p = recognize("Position of ship", "pos")
+            pos = ord(p[0])-65, int(p[1])
+            direction = Positions.vertical if recognize("Orientation of ship", "orient")  == 0 else Positions.horizontal
+            s = big_ship(pos, direction)
+            addToField(screen, playingField, list, s, False, cnt-1)
+        elif cnt > 0:
+            pygame.event.get()
+            tts_speak("Press space to start")
+            temp = True
+            while temp:
+                for event in pygame.event.get():
+                    if event.type == pygame.KEYDOWN:
+                            if event.key == pygame.K_SPACE:
+                                temp=False
+            p = recognize("Position of ship", "pos")
+            pos = ord(p[0])-65, int(p[1])
+            direction = Positions.vertical if recognize("Orientation of ship", "orient")  == 0 else Positions.horizontal
+            s = huge_ship(pos, direction)
+            addToField(screen, playingField, list, s, False, cnt-1)
+        return
 
-def attack(pos, screen, field, list, hitlist, bot):
+def attack(pos, screen, field, list, hitlist, bot, auto):
     if (pos[1],pos[0]) not in hitlist:
         for i in range(len(list)):
             for j in range(len(list[i].pos)):
@@ -153,12 +181,12 @@ def attack(pos, screen, field, list, hitlist, bot):
         else:
             pygame.draw.rect(screen, (10,10,10), pygame.Rect((pos[0]*50)+50, (pos[1]*50)+50, 50, 50))
     else:
-        if bot == True:
-            attack((random.randint(0,9), random.randint(0,9)), screen, field, list, hitlist, bot)
+        if bot == True or auto:
+            attack((random.randint(0,9), random.randint(0,9)), screen, field, list, hitlist, bot, auto)
         else:
-            p = input("Error - Position to attack: ").split("-")
+            p = recognize("Error - Position to attack", "pos")
             po = ord(p[0])-65, int(p[1])
-            attack(po, screen, field, list, hitlist, bot)
+            attack(po, screen, field, list, hitlist, bot, auto)
             
 def checkGame(list, enemyList):
     count = 0
@@ -166,7 +194,7 @@ def checkGame(list, enemyList):
         if list[i].hits == list[i].length:
             count += 1
     if count == len(list):
-        print("You lose!")
+        tts_speak("You lose!")
         return False
       
     count = 0
@@ -174,7 +202,7 @@ def checkGame(list, enemyList):
         if enemyList[i].hits == enemyList[i].length:
             count += 1
     if count == len(enemyList):
-        print("You win!")
+        tts_speak("You win!")
         return False
     
     return True
@@ -193,9 +221,12 @@ def main():
     screen.fill((100,50,250))
     drawGrid(screen)
     pygame.display.update()
-    setShips(screen, enemyField, enemyShipList, True)
+    # For demonstration purposes
+    # setShips(screen, playingField, shipList, True, auto=True)
     setShips(screen, playingField, shipList, False)
+    setShips(screen, enemyField, enemyShipList, True)
     displayField(playingField)
+    tts_speak("Press space to attack")
     while gameState:
         gameState = checkGame(shipList, enemyShipList)
         for event in pygame.event.get():
@@ -203,12 +234,12 @@ def main():
                     if event.key == pygame.K_ESCAPE:
                         return
                     if event.key == pygame.K_SPACE:
-                        p = input("Position to attack: ").split("-")
+                        p = recognize("Position to attack", "pos")
                         pos = ord(p[0])-65, int(p[1])
                         attack(pos, screen, enemyField, enemyShipList, userHitlist, False)
-                        #For demonstration purposes
-                        #attack((random.randint(0,9), random.randint(0,9)), screen, enemyField, enemyShipList, userHitlist, False)
-                        attack((random.randint(0,9), random.randint(0,9)), screen, playingField, shipList, enenemyHitlist, True)
+                        # For demonstration purposes
+                        # attack((random.randint(0,9), random.randint(0,9)), screen, enemyField, enemyShipList, userHitlist, False, True)
+                        attack((random.randint(0,9), random.randint(0,9)), screen, playingField, shipList, enenemyHitlist, True, False)
         drawGrid(screen)
         pygame.display.update()
     

@@ -11,4 +11,4 @@ def tts_speak(my_text):
         song = AudioSegment.from_file(f, format="mp3")
         play(song)
 
-tts_speak("Oi mate, what the hell do you think you're doing")
+tts_speak("Position to attack")
