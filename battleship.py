@@ -18,7 +18,7 @@ def displayField(field):
         print(line)
 
 def drawGrid(screen):
-    blockSize = 50 #Set the size of the grid block
+    blockSize = 50
     for x in range(50, 550, blockSize):
         for y in range(50, 550, blockSize):
             rect = pygame.Rect(x, y, blockSize, blockSize)
@@ -209,7 +209,6 @@ def main():
                         #For demonstration purposes
                         #attack((random.randint(0,9), random.randint(0,9)), screen, enemyField, enemyShipList, userHitlist, False)
                         attack((random.randint(0,9), random.randint(0,9)), screen, playingField, shipList, enenemyHitlist, True)
-                        print("Attack")
         drawGrid(screen)
         pygame.display.update()
     
