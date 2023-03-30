@@ -222,8 +222,8 @@ def main():
     drawGrid(screen)
     pygame.display.update()
     # For demonstration purposes
-    # setShips(screen, playingField, shipList, True, auto=True)
-    setShips(screen, playingField, shipList, False)
+    setShips(screen, playingField, shipList, True, auto=True)
+    #setShips(screen, playingField, shipList, False)
     setShips(screen, enemyField, enemyShipList, True)
     displayField(playingField)
     tts_speak("Press space to attack")
@@ -234,11 +234,11 @@ def main():
                     if event.key == pygame.K_ESCAPE:
                         return
                     if event.key == pygame.K_SPACE:
-                        p = recognize("Position to attack", "pos")
-                        pos = ord(p[0])-65, int(p[1])
-                        attack(pos, screen, enemyField, enemyShipList, userHitlist, False)
+                        #p = recognize("Position to attack", "pos")
+                        #pos = ord(p[0])-65, int(p[1])
+                        #attack(pos, screen, enemyField, enemyShipList, userHitlist, False, False)
                         # For demonstration purposes
-                        # attack((random.randint(0,9), random.randint(0,9)), screen, enemyField, enemyShipList, userHitlist, False, True)
+                        attack((random.randint(0,9), random.randint(0,9)), screen, enemyField, enemyShipList, userHitlist, False, True)
                         attack((random.randint(0,9), random.randint(0,9)), screen, playingField, shipList, enenemyHitlist, True, False)
         drawGrid(screen)
         pygame.display.update()
