@@ -3,6 +3,7 @@ from recognizer import recognize, tts_speak
 from ships import small_ship, medium_ship, big_ship, huge_ship, Positions
 import pygame
 
+# Method for initializing the game field
 def initField():
     f = []
     for i in range(10):
@@ -11,6 +12,7 @@ def initField():
             f[i].append("o")
     return f
 
+# Method for displaying the game field
 def displayField(field):
     for i in range(10):
         line = ""
@@ -18,6 +20,7 @@ def displayField(field):
             line += field[i][j]
         print(line)
 
+# Method for drawing a grid onto the game field to make fields more distinguishable
 def drawGrid(screen):
     blockSize = 50
     for x in range(50, 550, blockSize):
@@ -44,6 +47,7 @@ def drawGrid(screen):
         rect = pygame.Rect(1020, 70+50*i, 20, 20)
         screen.blit(pygame.font.Font(None, 24).render(str(i), True, (0,0,0)), (rect.x, rect.y))
 
+# Method for checking if schips collide
 def checkCollision(field, ship):
     for i in range(ship.length):
         match ship.positioning:
@@ -59,6 +63,7 @@ def checkCollision(field, ship):
                     return True
     return False
 
+# Method for adding elements to the game field
 def addToField(screen, field, list, ship, botOn=False, cnt=None, auto=False):
     if checkCollision(field, ship):
         setShips(screen, field, list, botOn, cnt+1, auto)
@@ -81,6 +86,7 @@ def addToField(screen, field, list, ship, botOn=False, cnt=None, auto=False):
     list.append(ship)        
     setShips(screen, field, list, botOn, cnt, auto)
 
+# Method for setting the positions of ships
 def setShips(screen, playingField, list, botOn, cnt=6, auto=False):
     if botOn:
         if cnt > 4:
@@ -163,6 +169,7 @@ def setShips(screen, playingField, list, botOn, cnt=6, auto=False):
             addToField(screen, playingField, list, s, False, cnt-1)
         return
 
+# Method for attacking the ships of the enemy
 def attack(pos, screen, field, list, hitlist, bot, auto):
     if (pos[1],pos[0]) not in hitlist:
         for i in range(len(list)):
@@ -187,7 +194,8 @@ def attack(pos, screen, field, list, hitlist, bot, auto):
             p = recognize("Error - Position to attack", "pos")
             po = ord(p[0])-65, int(p[1])
             attack(po, screen, field, list, hitlist, bot, auto)
-            
+
+# Method for checking the state of the game
 def checkGame(list, enemyList):
     count = 0
     for i in range(len(list)):
@@ -208,6 +216,7 @@ def checkGame(list, enemyList):
     return True
         
 def main():
+    # Initializing the Game Field
     gameState = True
     playingField = initField()
     enemyField = initField()
@@ -215,18 +224,22 @@ def main():
     enemyShipList = []
     userHitlist = []
     enenemyHitlist = []
+    # Displaying the game field
     pygame.init()
     size = 1550, 550
     screen = pygame.display.set_mode(size)
     screen.fill((100,50,250))
     drawGrid(screen)
     pygame.display.update()
+    # Setting the ships for both player and enemy
     # For demonstration purposes
-    setShips(screen, playingField, shipList, True, auto=True)
+    # Ships can either be set automatically or per voice commands
+    setShips(screen, playingField, shipList, True, auto=True) 
     #setShips(screen, playingField, shipList, False)
     setShips(screen, enemyField, enemyShipList, True)
     displayField(playingField)
     tts_speak("Press space to attack")
+    # Playing of the game starts
     while gameState:
         gameState = checkGame(shipList, enemyShipList)
         for event in pygame.event.get():
@@ -238,6 +251,8 @@ def main():
                         #pos = ord(p[0])-65, int(p[1])
                         #attack(pos, screen, enemyField, enemyShipList, userHitlist, False, False)
                         # For demonstration purposes
+                        
+                        # Player can attack with voice commands while enemy attacks automatically
                         attack((random.randint(0,9), random.randint(0,9)), screen, enemyField, enemyShipList, userHitlist, False, True)
                         attack((random.randint(0,9), random.randint(0,9)), screen, playingField, shipList, enenemyHitlist, True, False)
         drawGrid(screen)
