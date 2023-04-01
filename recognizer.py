@@ -41,18 +41,22 @@ def recognize(text, type):
         recog = recog.upper()
         print(recog)
         # Rückgabe der umgewandelten Daten
+        # Zuerst muss der Buchstabe und danach die Zahl des Feldes ausgesprochen werden
         if type == "pos":
             if recog[0] in ["A","B","C","D","E","F","G","H","I","J"] and int(recog[1]) >= 0 and int(recog[1]) < 10:
                 return recog
             else:
                 recognize(text, type)
         else:
+            # Wenn es sich bei der Eingabe nicht um eine Position handelt, muss man entweder Horizontal ode Vertikal für die Richtung des 
+            # Schiffs angeben
             if recog == "HORIZONTAL":
                 return 1
             elif recog == "VERTIKAL":
                 return 0
             else:
                 recognize(text, type)
+    # Sollten bei der Erkennung Fehler entstehen, wird die recognize - Methode erneut ausgeführt
     except sr.UnknownValueError:
         recognize(text, type)
     except sr.RequestError as e:
